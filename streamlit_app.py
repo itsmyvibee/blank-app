@@ -1,30 +1,39 @@
 import streamlit as st
-from xlcalculator import ModelCompiler, Model
+import requests
+from io import BytesIO
+from xlcalculator import ModelCompiler, Evaluator
 
-# Carrega o Excel (coloque no repositório junto com seu app)
-EXCEL_FILE = "Book 1.xlsx"
+# URL do arquivo Excel bruto do GitHub
+EXCEL_URL = "https://github.com/itsmyvibee/blank-app/raw/main/Book%201.xlsx"
 
-st.title("Excel como motor de cálculo")
+st.title("Excel como motor de cálculo direto do GitHub")
 
 # Campos de entrada
 x = st.number_input("Digite o valor de X:", value=0.0)
 y = st.number_input("Digite o valor de Y:", value=0.0)
 
-# Botão para calcular
 if st.button("Calcular resultado"):
     try:
+        # Baixa o Excel do GitHub
+        response = requests.get(EXCEL_URL)
+        response.raise_for_status()  # garante que a requisição deu certo
+        file_stream = BytesIO(response.content)
+
         # Compila o modelo do Excel
-        model_compiler = ModelCompiler()
-        new_model = model_compiler.read_and_parse_archive(EXCEL_FILE)
-        model = Model(new_model)
+        compiler = ModelCompiler()
+        model = compiler.read_and_parse_archive(file_stream)
+
+        # Cria o avaliador
+        evaluator = Evaluator(model)
 
         # Define os valores nas células
-        model.set_value("Sheet1!B1", x)
-        model.set_value("Sheet1!B2", y)
+        evaluator.set_cell_value("Sheet1!B1", x)
+        evaluator.set_cell_value("Sheet1!B2", y)
 
         # Avalia o resultado de B3
-        resultado = model.evaluate("Sheet1!B3")
+        resultado = evaluator.evaluate("Sheet1!B3")
 
         st.success(f"O resultado calculado no Excel (B3) é: {resultado}")
+
     except Exception as e:
         st.error(f"Erro: {e}")
