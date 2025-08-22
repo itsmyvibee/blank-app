@@ -6,13 +6,13 @@ from xlcalculator import ModelCompiler, Evaluator
 # URL do arquivo Excel bruto do GitHub
 EXCEL_URL = "https://github.com/itsmyvibee/blank-app/raw/main/Book%201.xlsx"
 
-st.title("Excel como motor de cálculo direto do GitHub")
+st.title("Teste de app linkado a motor excel")
 
 # Campos de entrada
-x = st.number_input("Digite o valor de X:", value=0.0)
-y = st.number_input("Digite o valor de Y:", value=0.0)
+x = st.number_input("Digite X:", value=0.0)
+y = st.number_input("Digite Y:", value=0.0)
 
-if st.button("Calcular resultado"):
+if st.button("Calcular"):
     try:
         # Baixa o Excel do GitHub
         response = requests.get(EXCEL_URL)
@@ -33,7 +33,7 @@ if st.button("Calcular resultado"):
         # Avalia o resultado de B3
         resultado = evaluator.evaluate("Sheet1!B3")
 
-        st.success(f"O resultado calculado no Excel (B3) é: {float(resultado):.2f}")
+        st.success(f"O resultado calculado pelo excel é: {float(resultado):.2f}")
 
 
     except Exception as e:
