@@ -1,44 +1,62 @@
 import streamlit as st
-import requests
-from io import BytesIO
-from xlcalculator import ModelCompiler, Evaluator
-import os
+from pathlib import Path
+from openpyxl import load_workbook
+from xlcalculator import ModelCompiler, Evaluator, readers
 
-GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
-# URL do arquivo Excel bruto do GitHub
-EXCEL_URL = "https://github.com/itsmyvibee/blank-app/raw/main/Book%201.xlsx"
+st.set_page_config(page_title="Motor Excel", page_icon="🧮", layout="centered")
 
-st.title("Teste de app linkado a motor excel")
+# CSS para esconder menu/rodapé/ícone GitHub (visual)
+st.markdown("""
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header [data-testid="stToolbar"] {visibility: hidden;}
+button[kind="header"] {visibility: hidden;}
+a[href*="github.com"] {display:none !important;}
+</style>
+""", unsafe_allow_html=True)
 
-# Campos de entrada
-x = st.number_input("Digite X:", value=0.0)
-y = st.number_input("Digite Y:", value=0.0)
+st.title("Excel como motor de cálculo")
 
-if st.button("Calcular"):
+# Caminho local do Excel (o arquivo deve estar no mesmo repo do app)
+EXCEL_FILE = Path(__file__).parent / "Book 1.xlsx"
+if not EXCEL_FILE.exists():
+    st.error(f"Arquivo não encontrado: {EXCEL_FILE.name}. Coloque-o na raiz do app.")
+    st.stop()
+
+# Descobre automaticamente o nome da 1ª planilha para montar endereços tipo Sheet!B1
+try:
+    wb = load_workbook(EXCEL_FILE, data_only=False, read_only=True)
+    sheet_name = wb.sheetnames[0]
+except Exception as e:
+    st.error(f"Não consegui abrir o Excel: {e}")
+    st.stop()
+
+# Entradas
+col1, col2 = st.columns(2)
+with col1:
+    x = st.number_input("Valor para B1", value=0.0, step=1.0, format="%.2f")
+with col2:
+    y = st.number_input("Valor para B2", value=0.0, step=1.0, format="%.2f")
+
+if st.button("Calcular (preencher B1/B2 e ler B3)"):
     try:
-        # Baixa o Excel do GitHub
-        headers = {"Authorization": f"token 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"}
-        
-        response = requests.get(EXCEL_URL, headers=headers)
-        response.raise_for_status()  # garante que a requisição deu certo
-        file_stream = BytesIO(response.content)
+        # Compila o modelo do Excel uma única vez por execução do botão
+        model = ModelCompiler().read_and_parse_archive(str(EXCEL_FILE))
+        ev = Evaluator(model)
 
-        # Compila o modelo do Excel
-        compiler = ModelCompiler()
-        model = compiler.read_and_parse_archive(file_stream)
+        # Define os valores de entrada
+        ev.set_cell_value(f"{sheet_name}!B1", x)
+        ev.set_cell_value(f"{sheet_name}!B2", y)
 
-        # Cria o avaliador
-        evaluator = Evaluator(model)
+        # Avalia a célula B3
+        result = ev.evaluate(f"{sheet_name}!B3")
 
-        # Define os valores nas células
-        evaluator.set_cell_value("Sheet1!B1", x)
-        evaluator.set_cell_value("Sheet1!B2", y)
-
-        # Avalia o resultado de B3
-        resultado = evaluator.evaluate("Sheet1!B3")
-
-        st.success(f"O resultado calculado pelo excel é: {float(resultado):.2f}")
-
+        # Mostra com 2 casas decimais
+        if isinstance(result, (int, float)):
+            st.success(f"Resultado em B3: {result:.2f}")
+        else:
+            st.warning(f"B3 retornou um valor não numérico: {result}")
 
     except Exception as e:
-        st.error(f"Erro: {e}")
+        st.error(f"Erro ao calcular B3 via xlcalculator: {e}")
