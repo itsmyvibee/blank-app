@@ -2,7 +2,9 @@ import streamlit as st
 import requests
 from io import BytesIO
 from xlcalculator import ModelCompiler, Evaluator
+import os
 
+GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 # URL do arquivo Excel bruto do GitHub
 EXCEL_URL = "https://github.com/itsmyvibee/blank-app/raw/main/Book%201.xlsx"
 
@@ -15,6 +17,8 @@ y = st.number_input("Digite Y:", value=0.0)
 if st.button("Calcular"):
     try:
         # Baixa o Excel do GitHub
+        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+        
         response = requests.get(EXCEL_URL)
         response.raise_for_status()  # garante que a requisição deu certo
         file_stream = BytesIO(response.content)
