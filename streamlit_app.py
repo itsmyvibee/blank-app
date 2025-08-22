@@ -17,7 +17,7 @@ y = st.number_input("Digite Y:", value=0.0)
 if st.button("Calcular"):
     try:
         # Baixa o Excel do GitHub
-        headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+        headers = {"Authorization": f"token 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"}
         
         response = requests.get(EXCEL_URL)
         response.raise_for_status()  # garante que a requisição deu certo
