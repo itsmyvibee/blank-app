@@ -33,7 +33,7 @@ if st.button("Calcular resultado"):
         # Avalia o resultado de B3
         resultado = evaluator.evaluate("Sheet1!B3")
 
-        st.success(f"O resultado calculado no Excel (B3) é: {float(resultado)):.2f}")
+        st.success(f"O resultado calculado no Excel (B3) é: {float(resultado):.2f}")
 
 
     except Exception as e:
