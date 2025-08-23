@@ -94,6 +94,9 @@ div.stButton > button:first-child {
 </style>
 """, unsafe_allow_html=True)
 
+def brl(v: float) -> str:
+    return f"R$ {v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
 # ----------------------- CABEÇALHO -----------------------
 left, _ = st.columns([1,3])
 with left:
@@ -108,8 +111,20 @@ with st.form("form_pl"):
         nome = st.text_input("Nome do estabelecimento", placeholder="Jane Smith")
         cnpj_principal = st.text_input("CNPJ Principal", placeholder="00.000.000/0000-00")
     with c2:
-        faturamento_anual = st.number_input("Faturamento Anual", min_value=0.0, step=1000.0, format="%.2f")
-        faturamento_mensal = st.number_input("Faturamento Mensal", min_value=0.0, step=100.0, format="%.2f")
+        faturamento_anual = st.number_input(
+            "Faturamento Anual (R$)",
+            min_value=0.0, step=10000.0, format="%.2f"
+        )
+    
+        # Calculado automaticamente
+        faturamento_mensal = faturamento_anual / 12
+    
+        # Exibe como campo desabilitado (só leitura)
+        st.text_input(
+            "Faturamento Mensal (R$)",
+            value=brl(faturamento_mensal),
+            disabled=True
+        )
     with c3:
         antecipacao_sel = st.selectbox("Antecipação?", ["SIM", "NÃO"])
         captura_sel = st.selectbox("Captura", ["FISICO", "ECOMMERCE"])
@@ -120,12 +135,12 @@ with st.form("form_pl"):
         qtd_cnpjs = st.number_input("Quantidade de CNPJs", min_value=1, step=1, value=1)
         cnae = st.text_input("Código CNAE", placeholder="0000-0/00")
     with c5:
-        taxa_antecipacao = st.number_input("Taxa de antecipação (%)", min_value=0.0, max_value=100.0, step=0.01, format="%.2f")
+        taxa_antecipacao = st.number_input("Taxa de antecipação (%)", min_value=0.0, max_value=5.0, step=0.01, format="%.2f")
 
     st.markdown("<hr class='thin'/>", unsafe_allow_html=True)
 
     # ----------------------- TABELA DE BANDEIRAS E TAXAS -----------------------
-    st.markdown("#### Tabelas de Taxas por Bandeira")
+    st.markdown("#### Taxas solicitadas")
     # Cabeçalho
     h1, h2, h3, h4, h5 = st.columns([1.1, 1, 1, 1, 1])
     with h1: st.markdown('<div class="header-cell"> </div>', unsafe_allow_html=True)
@@ -150,22 +165,22 @@ with st.form("form_pl"):
 
         with cB:
             taxas[f"{key_base}_debito"] = st.number_input(
-                f"Débito — {nome_bandeira}", min_value=0.0, max_value=100.0, step=0.01,
+                f"Débito — {nome_bandeira}", min_value=0.0, max_value=5.0, step=0.10,
                 format="%.2f", key=f"{key_base}_deb", label_visibility="collapsed"
             )
         with cC:
             taxas[f"{key_base}_credito"] = st.number_input(
-                f"Crédito — {nome_bandeira}", min_value=0.0, max_value=100.0, step=0.01,
+                f"Crédito — {nome_bandeira}", min_value=0.0, max_value=5.0, step=0.10,
                 format="%.2f", key=f"{key_base}_cred", label_visibility="collapsed"
             )
         with cD:
             taxas[f"{key_base}_parc_2a6"] = st.number_input(
-                f"Parcelado 2 a 6 — {nome_bandeira}", min_value=0.0, max_value=100.0, step=0.01,
+                f"Parcelado 2 a 6 — {nome_bandeira}", min_value=0.0, max_value=5.0, step=0.10,
                 format="%.2f", key=f"{key_base}_p26", label_visibility="collapsed"
             )
         with cE:
             taxas[f"{key_base}_parc_7a12"] = st.number_input(
-                f"Parcelado 7 a 12 — {nome_bandeira}", min_value=0.0, max_value=100.0, step=0.01,
+                f"Parcelado 7 a 12 — {nome_bandeira}", min_value=0.0, max_value=5.0, step=0.10,
                 format="%.2f", key=f"{key_base}_p712", label_visibility="collapsed"
             )
 
