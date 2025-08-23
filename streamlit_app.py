@@ -169,9 +169,9 @@ with st.form("form_pl"):
     if st.session_state.get("captura_sel") == "FISICO":   # aparece/desaparece na hora
         st.markdown("#### ")
         st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
-        st.markdown("#### Terminais")
+        st.markdown("#### Tecnlogia Física")
         t1, t2, t3, _sp2 = st.columns([1.4, 1, 1, 3])
-        with t1: st.markdown('<div class="header-cell">Terminal</div>', unsafe_allow_html=True)
+        with t1: st.markdown('<div class="header-cell"></div>', unsafe_allow_html=True)
         with t2: st.markdown('<div class="header-cell">Quantidade</div>', unsafe_allow_html=True)
         with t3: st.markdown('<div class="header-cell">Valor (R$)</div>', unsafe_allow_html=True)
 
@@ -197,7 +197,7 @@ with st.form("form_pl"):
                     key=f"{slug}_valor", label_visibility="collapsed"
                 )
             terminais_data[slug] = {"terminal": label, "quantidade": q, "valor": v}
-            st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
+            #st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
 
     # ----------------------- SUBMIT -----------------------
     submitted = st.form_submit_button("Submit")
