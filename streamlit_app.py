@@ -110,21 +110,17 @@ with st.form("form_pl"):
     with c1:
         nome = st.text_input("Nome do estabelecimento", placeholder="Jane Smith")
         cnpj_principal = st.text_input("CNPJ Principal", placeholder="00.000.000/0000-00")
+    
     with c2:
+        # anual editável
         faturamento_anual = st.number_input(
-            "Faturamento Anual (R$)",
-            min_value=0.0, step=10000.0, format="%.2f"
+            "Faturamento Anual (R$)", min_value=0.0, step=1000.0, format="%.2f", key="fat_anual"
         )
+      
+        # mensal calculado (só leitura) usando session_state para atualizar a cada rerun
+        st.session_state["fat_mensal_disp"] = brl(st.session_state.get("fat_anual", 0.0) / 12.0)
+        st.text_input("Faturamento Mensal (R$)", key="fat_mensal_disp", disabled=True)
     
-        # Calculado automaticamente
-        faturamento_mensal = faturamento_anual / 12
-    
-        # Exibe como campo desabilitado (só leitura)
-        st.text_input(
-            "Faturamento Mensal (R$)",
-            value=brl(faturamento_mensal),
-            disabled=True
-        )
     with c3:
         antecipacao_sel = st.selectbox("Antecipação?", ["SIM", "NÃO"])
         captura_sel = st.selectbox("Captura", ["FISICO", "ECOMMERCE"])
