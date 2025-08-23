@@ -162,11 +162,13 @@ with st.form("form_pl"):
                 f"Parcelado 7 a 12 — {nome_bandeira}", min_value=0.0, max_value=5.0, value=0.0, step=0.10,
                 format="%.2f", key=f"{key_base}_p712", label_visibility="collapsed"
             )
-        st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
+        #st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
 
     # ----------------------- TABELA DE TERMINAIS (CONDICIONAL) -----------------------
     terminais_data = {}
     if st.session_state.get("captura_sel") == "FISICO":   # aparece/desaparece na hora
+        st.markdown("#### ")
+        st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
         st.markdown("#### Terminais")
         t1, t2, t3, _sp2 = st.columns([1.4, 1, 1, 3])
         with t1: st.markdown('<div class="header-cell">Terminal</div>', unsafe_allow_html=True)
