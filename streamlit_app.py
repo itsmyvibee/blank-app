@@ -116,10 +116,11 @@ with st.form("form_pl"):
         faturamento_anual = st.number_input(
             "Faturamento Anual (R$)", min_value=0.0, step=1000.0, format="%.2f", key="fat_anual"
         )
-      
+        
         # mensal calculado (só leitura) usando session_state para atualizar a cada rerun
         st.session_state["fat_mensal_disp"] = brl(st.session_state.get("fat_anual", 0.0) / 12.0)
         st.text_input("Faturamento Mensal (R$)", key="fat_mensal_disp", disabled=True)
+        faturamento_mensal = st.session_state["fat_mensal_disp"]
     
     with c3:
         antecipacao_sel = st.selectbox("Antecipação?", ["SIM", "NÃO"])
