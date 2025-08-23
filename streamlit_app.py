@@ -214,9 +214,10 @@ with st.form("form_pl"):
                 )
             with cC:
                 v = st.number_input(
-                    f"Valor — {label}", min_value=0.0, step=10, format="%.2f",
-                    key=f"{slug}_valor", label_visibility="collapsed"
+                      f"Valor — {label}", min_value=0.0, value=0.0, step=10.0, format="%.2f",
+                      key=f"{slug}_valor", label_visibility="collapsed"
                 )
+                
 
             terminais_data[slug] = {"terminal": label, "quantidade": q, "valor": v}
             st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
