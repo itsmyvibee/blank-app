@@ -201,32 +201,33 @@ with st.form("form_pl"):
             #st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
 
     # ----------------------- Campo de antecipação (CONDICIONAL) -----------------------
+    antecip_data = {}  # garante que exista mesmo se não entrar no IF
     if st.session_state.get("antecipacao_sel") == "SIM":   # aparece/desaparece na hora
-        
         st.markdown("#### ")
         st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
         st.markdown("#### Antecipação")
+    
+        # Wrapper para aplicar CSS apenas aqui
+        st.markdown('<div id="antec">', unsafe_allow_html=True)
+    
+        # Cabeçalho compacto
         t1, t2, _sp2 = st.columns([1.4, 1, 3])
-        with t1: st.markdown('<div class="header-cell"></div>', unsafe_allow_html=True)
-        with t2: st.markdown('<div class="header-cell">Quantidade</div>', unsafe_allow_html=True)
-        
-        lista_produtos_prepay = [
-            ("Antecipação Automática", "antecipacao_auto"),
-            
-        ]
-        for label, slug in lista_produtos_prepay:
-            cA, cB, spacer2 = st.columns([1.4, 1, 3])
-            with cA:
-                st.write(label)
-            with cB:
-                q = st.number_input(
-                    f"Taxa — {label}", min_value=0.0, value=0.0, step=0.10, format="%.2f",
-                    key=f"{slug}_qtd", label_visibility="collapsed"
-                )
-            
-            antecip_data[slug] = {"produto": label, "taxa": q}
-            #st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
-
+        with t1: st.markdown('<div class="header-cell">Produto</div>', unsafe_allow_html=True)
+        with t2: st.markdown('<div class="header-cell">Taxa (%)</div>', unsafe_allow_html=True)
+    
+        # Linha única de produto
+        cA, cB, spacer2 = st.columns([1.4, 1, 3])
+        with cA:
+            st.write("Antecipação Automática")
+        with cB:
+            taxa = st.number_input(
+                "Taxa — Antecipação Automática",
+                min_value=0.0, value=0.0, step=0.10, format="%.2f",
+                key="taxa_antecipacao", label_visibility="collapsed"
+            )
+        antecip_data["antecipacao_auto"] = {"produto": "Antecipação Automática", "taxa": taxa}
+    
+        st.markdown('</div>', unsafe_allow_html=True)
 
     
     # ----------------------- SUBMIT -----------------------
@@ -243,7 +244,7 @@ if submitted:
         "captura": st.session_state.get("captura_sel"),
         "taxas_por_bandeira_percent": taxas,
         "terminais": terminais_data,  # vazio se não for FISICO
-        "prepay_tax":st.session_state.get("taxa_antecipacao", 0.0)
+        "antecipacao_detalhe": antecip_data,
     }
     st.success("Dados coletados com sucesso!")
     st.json(resultado)
