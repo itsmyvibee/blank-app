@@ -183,6 +183,49 @@ with st.form("form_pl"):
 
         st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
 
+    # ----- GRADE DE TERMINAIS (condicional) -----
+    if st.session_state.get("captura_sel") == "FISICO":
+        st.markdown("#### Terminais")
+        st.markdown('<div id="devices">', unsafe_allow_html=True)
+
+        # Cabeçalho
+        t1, t2, t3, _sp2 = st.columns([1.4, 1, 1, 3])
+        with t1: st.markdown('<div class="header-cell">Terminal</div>', unsafe_allow_html=True)
+        with t2: st.markdown('<div class="header-cell">Quantidade</div>', unsafe_allow_html=True)
+        with t3: st.markdown('<div class="header-cell">Valor (R$)</div>', unsafe_allow_html=True)
+
+        lista_terminais = [
+            ("POS Wifi", "pos_wifi"),
+            ("PINPAD", "pinpad"),
+            ("SMART POS", "smart_pos"),
+            ("CLOVER FLEX", "clover_flex"),
+            ("CLOVER MINI", "clover_mini"),
+        ]
+
+        terminais_data = {}  # sobrescreve com os valores atuais
+        for label, slug in lista_terminais:
+            cA, cB, cC, spacer2 = st.columns([1.4, 1, 1, 3])
+
+            with cA:
+                st.write(label)
+
+            with cB:
+                q = st.number_input(
+                    f"Qtd — {label}", min_value=0, step=1, value=0,
+                    key=f"{slug}_qtd", label_visibility="collapsed"
+                )
+            with cC:
+                v = st.number_input(
+                    f"Valor — {label}", min_value=0.0, step=10, format="%.2f",
+                    key=f"{slug}_valor", label_visibility="collapsed"
+                )
+
+            terminais_data[slug] = {"terminal": label, "quantidade": q, "valor": v}
+            st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)  # fecha #devices
+
+  
     # ----------------------- SUBMIT -----------------------
     submitted = st.form_submit_button("Submit")
 
