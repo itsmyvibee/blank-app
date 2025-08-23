@@ -199,6 +199,11 @@ with st.form("form_pl"):
             terminais_data[slug] = {"terminal": label, "quantidade": q, "valor": v}
             #st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
 
+    # ----------------------- Campo de antecipação (CONDICIONAL) -----------------------
+    if st.session_state.get("antecipacao_sel") == "SIM":   # aparece/desaparece na hora
+            taxa_antecipacao = st.number_input("Faturamento Anual (R$)", min_value=0.0, step=1000.0, format="%.2f", key="taxa_antecipacao")
+
+    
     # ----------------------- SUBMIT -----------------------
     submitted = st.form_submit_button("Submit")
 
@@ -213,6 +218,7 @@ if submitted:
         "captura": st.session_state.get("captura_sel"),
         "taxas_por_bandeira_percent": taxas,
         "terminais": terminais_data,  # vazio se não for FISICO
+        "prepay_tax":st.session_state.get("taxa_antecipacao", 0.0)
     }
     st.success("Dados coletados com sucesso!")
     st.json(resultado)
