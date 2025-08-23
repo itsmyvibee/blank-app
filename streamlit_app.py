@@ -116,15 +116,15 @@ with st.form("form_pl"):
         faturamento_anual = st.number_input(
             "Faturamento Anual (R$)", min_value=0.0, step=1000.0, format="%.2f", key="fat_anual"
         )
-        
-        # mensal calculado (só leitura) usando session_state para atualizar a cada rerun
+        # mensal calculado (só leitura) — OBS: dentro do form só atualiza no Submit
         st.session_state["fat_mensal_disp"] = brl(st.session_state.get("fat_anual", 0.0) / 12.0)
         st.text_input("Faturamento Mensal (R$)", key="fat_mensal_disp", disabled=True)
         faturamento_mensal = st.session_state["fat_mensal_disp"]
     
     with c3:
         antecipacao_sel = st.selectbox("Antecipação?", ["SIM", "NÃO"])
-        captura_sel = st.selectbox("Captura", ["FISICO", "ECOMMERCE"])
+        # >>>> ADICIONADO key para funcionar com session_state e facilitar a leitura
+        captura_sel = st.selectbox("Captura", ["FISICO", "ECOMMERCE"], key="captura_sel")
 
     # Segunda linha (2 colunas)
     c4, c5 = st.columns([1.2, 1])
@@ -140,13 +140,12 @@ with st.form("form_pl"):
     st.markdown("#### Taxas solicitadas")
     # Cabeçalho
     h1, h2, h3, h4, h5 = st.columns([1.1, 1, 1, 1, 1])
-    with h1: st.markdown('<div class="header-cell"> </div>', unsafe_allow_html=True)
+    with h1: st.markdown('<div class="header-cell"> </div>', unsafe_allow_html=True)
     with h2: st.markdown('<div class="header-cell">Débito</div>', unsafe_allow_html=True)
     with h3: st.markdown('<div class="header-cell">Crédito</div>', unsafe_allow_html=True)
     with h4: st.markdown('<div class="header-cell">Parcelado 2 a 6</div>', unsafe_allow_html=True)
     with h5: st.markdown('<div class="header-cell">Parcelado 7 a 12</div>', unsafe_allow_html=True)
 
-    # Bandeiras (usei texto; se quiser logos, depois colocamos imagens locais)
     bandeiras = [
         ("Mastercard", "mc"),
         ("Visa", "visa"),
@@ -184,10 +183,10 @@ with st.form("form_pl"):
         st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
 
     # ----- GRADE DE TERMINAIS (condicional) -----
-    if st.session_state.get("captura_sel") == "FISICO":
+    terminais_data = {}
+    # >>>> USE A VARIÁVEL captura_sel (ou session_state com key configurada)
+    if captura_sel == "FISICO":
         st.markdown("#### Terminais")
-        st.markdown('<div id="devices">', unsafe_allow_html=True)
-
         # Cabeçalho
         t1, t2, t3, _sp2 = st.columns([1.4, 1, 1, 3])
         with t1: st.markdown('<div class="header-cell">Terminal</div>', unsafe_allow_html=True)
@@ -202,7 +201,6 @@ with st.form("form_pl"):
             ("CLOVER MINI", "clover_mini"),
         ]
 
-        terminais_data = {}  # sobrescreve com os valores atuais
         for label, slug in lista_terminais:
             cA, cB, cC, spacer2 = st.columns([1.4, 1, 1, 3])
 
@@ -223,9 +221,6 @@ with st.form("form_pl"):
             terminais_data[slug] = {"terminal": label, "quantidade": q, "valor": v}
             st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)  # fecha #devices
-
-  
     # ----------------------- SUBMIT -----------------------
     submitted = st.form_submit_button("Submit")
 
@@ -242,7 +237,9 @@ if submitted:
         "captura": captura_sel,           # "FISICO" / "ECOMMERCE"
         "taxa_antecipacao_percent": taxa_antecipacao,
         "taxas_por_bandeira_percent": taxas,
+        "terminais": terminais_data,      # <- agora incluso
     }
     st.success("Dados coletados com sucesso!")
     st.json(resultado)
+
 
