@@ -220,7 +220,7 @@ with st.form("form_pl"):
                 st.write(label)
             with cB:
                 q = st.number_input(
-                    f"Taxa — {label}", min_value=0, value=0, step=0.10, format="%.2f",
+                    f"Taxa — {label}", min_value=0.0, value=0.0, step=0.10, format="%.2f",
                     key=f"{slug}_qtd", label_visibility="collapsed"
                 )
             
