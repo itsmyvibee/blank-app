@@ -136,17 +136,16 @@ with st.form("form_pl"):
 
     # Bandeiras (usei texto; se quiser logos, depois colocamos imagens locais)
     bandeiras = [
-    ("Mastercard", "images/mastercard.png", "mc"),
-    ("Visa", "images/visa.png", "visa"),
-    ("Elo", "images/elo.png", "elo"),
-    ("American Express", "images/amex.png", "amex"),
+        ("Mastercard", "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg", "mc"),
+        ("Visa", "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png", "visa"),
+        ("Elo", "https://upload.wikimedia.org/wikipedia/commons/5/5a/Bandeira_Elo.png", "elo"),
+        ("American Express", "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg", "amex"),
     ]
-
-    for nome_bandeira, logo_path, key_base in bandeiras:
+    
+    for nome_bandeira, logo_url, key_base in bandeiras:
         cA, cB, cC, cD, cE = st.columns([1.1, 1, 1, 1, 1])
         with cA:
-            st.image(logo_path, width=60)  # Mostra logo no lugar do texto
-
+            st.image(logo_url, width=60)
 
     taxas = {}
     for nome_bandeira, key_base in bandeiras:
