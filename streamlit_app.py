@@ -69,136 +69,57 @@ from xlcalculator import ModelCompiler, Evaluator
 # INTERFACE TESTE ----------------------------------------------------------------------------------
 
 import streamlit as st
+from pathlib import Path
 
-st.set_page_config(page_title="Simulador de P&L", layout="wide")
+st.set_page_config(page_title="P&L – Credenciamento", layout="wide")
 
-# ----------------------- ESTILO -----------------------
-st.markdown("""
-<style>
-.app-title { font-size: 28px; font-weight: 700; letter-spacing: .2px; }
-.app-subtitle { color:#888; font-size:18px; margin-bottom: 1.25rem; }
+# ====== TOPO / BRANDING ======
+logo_path = Path(__file__).parent / "images" / "logo.png"
 
-/* Separadores e cabeçalhos */
-.header-cell { font-weight:600; padding-bottom:6px; border-bottom:2px solid #444; text-align:center; }
-.row-sep { border-bottom: 1px solid #333; margin: 8px 0 12px 0; }
+top_left, top_right = st.columns([1, 3])
+with top_left:
+    if logo_path.exists():
+        st.image(str(logo_path), caption=None, use_column_width=False, width=160)
+    else:
+        st.warning("Coloque sua logo em **images/logo.png**")
+with top_right:
+    st.markdown("<h3 style='margin-top:0'>Ferramenta P&L</h3>", unsafe_allow_html=True)
 
-/* Célula do logo */
-.flag-cell { display:flex; align-items:center; height: 56px; }
+# ====== CONTROLES GERAIS ======
+c1, c2 = st.columns(2)
+with c1:
+    antecipacao = st.radio("Antecipação?", ["SIM", "NÃO"], horizontal=True)
+with c2:
+    captura = st.radio("Captura", ["FÍSICO", "ECOMMERCE"], horizontal=True)
 
-/* ====== ESTILO RESTRITO À GRADE DE TAXAS (#rates) ====== */
-#rates [data-testid="stNumberInput"] > div {
-  max-width: 160px;          /* deixa compacto */
-  margin: 0 auto !important; /* centraliza na coluna */
-}
-#rates [data-testid="stNumberInput"] input {
-  text-align: right;          /* números alinhados à direita */
-}
-#rates .col-center { text-align:center; } /* ajuda a centralizar cabeçalho */
-</style>
-""", unsafe_allow_html=True)
+st.divider()
 
-# ----------------------- CABEÇALHO -----------------------
-left, _ = st.columns([1,3])
-with left:
-    st.markdown('<div class="app-title">fiserv.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="app-subtitle">Simulador de P&L</div>', unsafe_allow_html=True)
+# ====== TABELA DE TAXAS POR BANDEIRA (texto no lugar dos logos) ======
+st.subheader("Taxas por bandeira")
 
-# ----------------------- FORM -----------------------
-with st.form("form_pl"):
-    # Campos superiores (tamanhos originais)
-    c1, c2, c3 = st.columns([1.2, 1, 1])
+# Cabeçalho da tabela
+h0, h1, h2, h3 = st.columns([2.0, 1.2, 1.2, 1.2])
+with h0: st.markdown("<p style='text-align:center; font-weight:600;'>Bandeira</p>", unsafe_allow_html=True)
+with h1: st.markdown("<p style='text-align:center; font-weight:600;'>Débito (%)</p>", unsafe_allow_html=True)
+with h2: st.markdown("<p style='text-align:center; font-weight:600;'>Crédito à vista (%)</p>", unsafe_allow_html=True)
+with h3: st.markdown("<p style='text-align:center; font-weight:600;'>Crédito parcelado (%)</p>", unsafe_allow_html=True)
+
+# Lista de bandeiras apenas como TEXTO
+bandeiras = ["Visa", "Mastercard", "Elo", "American Express", "Hipercard"]
+
+taxas = {}
+for b in bandeiras:
+    c0, c1, c2, c3 = st.columns([2.0, 1.2, 1.2, 1.2])
+    with c0:
+        st.markdown(f"<p style='text-align:center; margin-top:10px;'>{b}</p>", unsafe_allow_html=True)
     with c1:
-        nome = st.text_input("Nome do estabelecimento", placeholder="Jane Smith")
-        cnpj_principal = st.text_input("CNPJ Principal", placeholder="00.000.000/0000-00")
+        deb = st.number_input(f"Débito % - {b}", value=0.00, step=0.01, format="%.2f",
+                              label_visibility="collapsed", key=f"deb_{b}")
     with c2:
-        faturamento_anual = st.number_input("Faturamento Anual (R$)", min_value=0.0, step=1000.0, format="%.2f")
-        faturamento_mensal = st.number_input("Faturamento Mensal (R$)", min_value=0.0, step=100.0, format="%.2f")
+        av = st.number_input(f"Crédito à vista % - {b}", value=0.00, step=0.01, format="%.2f",
+                             label_visibility="collapsed", key=f"avista_{b}")
     with c3:
-        antecipacao_sel = st.selectbox("Antecipação?", ["SIM", "NÃO"])
-        captura_sel = st.selectbox("Captura", ["FISICO", "ECOMMERCE"])
-
-    c4, c5 = st.columns([1.2, 1])
-    with c4:
-        qtd_cnpjs = st.number_input("Quantidade de CNPJs", min_value=1, step=1, value=1)
-        cnae = st.text_input("Código CNAE", placeholder="0000-0/00")
-    with c5:
-        taxa_antecipacao = st.number_input("Taxa de antecipação (%)", min_value=0.0, max_value=100.0, step=0.01, format="%.2f")
-
-    st.markdown("---")
-
-    # ----------------------- TABELA DE BANDEIRAS -----------------------
-    st.markdown("### Tabelas de Taxas por Bandeira")
-
-    # wrapper para aplicar CSS apenas aqui
-    st.markdown('<div id="rates">', unsafe_allow_html=True)
-
-    # Cabeçalho (coluna espaçadora para “puxar” inputs ao centro visual)
-    h1, h2, h3, h4, h5, _sp = st.columns([0.8, 1, 1, 1, 1, 2.5])
-    with h1: st.markdown('<div class="header-cell"> </div>', unsafe_allow_html=True)
-    with h2: st.markdown('<div class="header-cell col-center">Débito</div>', unsafe_allow_html=True)
-    with h3: st.markdown('<div class="header-cell col-center">Crédito</div>', unsafe_allow_html=True)
-    with h4: st.markdown('<div class="header-cell col-center">Parcelado 2 a 6</div>', unsafe_allow_html=True)
-    with h5: st.markdown('<div class="header-cell col-center">Parcelado 7 a 12</div>', unsafe_allow_html=True)
-
-    # Logos
-    bandeiras = [
-        ("Mastercard", "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg", "mc"),
-        ("Visa", "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png", "visa"),
-        ("Elo", "https://upload.wikimedia.org/wikipedia/commons/4/4f/Elo_card_logo.svg", "elo"),
-        ("American Express", "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg", "amex"),
-    ]
-
-    taxas = {}
-    for nome_bandeira, logo_src, key_base in bandeiras:
-        cA, cB, cC, cD, cE, spacer = st.columns([0.8, 1, 1, 1, 1, 2.5])
-
-        with cA:
-            st.markdown('<div class="flag-cell">', unsafe_allow_html=True)
-            st.image(logo_src, width=64)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        with cB:
-            taxas[f"{key_base}_debito"] = st.number_input(
-                f"Débito — {nome_bandeira}", min_value=0.0, max_value=100.0, step=0.01,
-                format="%.2f", key=f"{key_base}_deb", label_visibility="collapsed"
-            )
-        with cC:
-            taxas[f"{key_base}_credito"] = st.number_input(
-                f"Crédito — {nome_bandeira}", min_value=0.0, max_value=100.0, step=0.01,
-                format="%.2f", key=f"{key_base}_cred", label_visibility="collapsed"
-            )
-        with cD:
-            taxas[f"{key_base}_parc_2a6"] = st.number_input(
-                f"Parcelado 2 a 6 — {nome_bandeira}", min_value=0.0, max_value=100.0, step=0.01,
-                format="%.2f", key=f"{key_base}_p26", label_visibility="collapsed"
-            )
-        with cE:
-            taxas[f"{key_base}_parc_7a12"] = st.number_input(
-                f"Parcelado 7 a 12 — {nome_bandeira}", min_value=0.0, max_value=100.0, step=0.01,
-                format="%.2f", key=f"{key_base}_p712", label_visibility="collapsed"
-            )
-
-        st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
-
-    # fecha wrapper
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    submitted = st.form_submit_button("Submit")
-
-# ----------------------- RESULTADO -----------------------
-if submitted:
-    resultado = {
-        "estabelecimento": nome,
-        "cnpj_principal": cnpj_principal,
-        "qtd_cnpjs": qtd_cnpjs,
-        "cnae": cnae,
-        "faturamento_anual": faturamento_anual,
-        "faturamento_mensal": faturamento_mensal,
-        "antecipacao": antecipacao_sel,
-        "captura": captura_sel,
-        "taxa_antecipacao_percent": taxa_antecipacao,
-        "taxas_por_bandeira_percent": taxas,
-    }
-    st.success("Dados coletados com sucesso!")
-    st.json(resultado)
+        par = st.number_input(f"Crédito parcelado % - {b}", value=0.00, step=0.01, format="%.2f",
+                              label_visibility="collapsed", key=f"parcel_{b}")
+    taxas[b] = {"debito": deb, "cre
 
