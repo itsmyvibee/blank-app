@@ -202,19 +202,19 @@ with st.form("form_pl"):
 
     # ----------------------- Campo de antecipação (CONDICIONAL) -----------------------
     if st.session_state.get("antecipacao_sel") == "SIM":   # aparece/desaparece na hora
-    st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
-    st.markdown("#### Antecipação")
-
-    # Colunas para deixar o input estreito e centralizado
-    left, center, right = st.columns([3, 1, 3])
-    with center:
-        taxa_antecipacao = st.number_input(
-            "Taxa de antecipação (%)",
-            min_value=0.0, value=0.0, step=0.01, format="%.2f",
-            key="taxa_antecipacao", label_visibility="collapsed"
-        )
-
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
+        st.markdown("#### Antecipação")
+    
+        # Colunas para deixar o input estreito e centralizado
+        left, center, right = st.columns([3, 1, 3])
+        with center:
+            taxa_antecipacao = st.number_input(
+                "Taxa de antecipação (%)",
+                min_value=0.0, value=0.0, step=0.01, format="%.2f",
+                key="taxa_antecipacao", label_visibility="collapsed"
+            )
+    
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
     
