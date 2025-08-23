@@ -72,30 +72,28 @@ import streamlit as st
 
 st.set_page_config(page_title="Simulador de P&L", layout="wide")
 
-# ----------------------- ESTILO OPCIONAL -----------------------
+# ----------------------- ESTILO -----------------------
 st.markdown("""
 <style>
 .app-title { font-size: 28px; font-weight: 700; letter-spacing: .2px; }
 .app-subtitle { color:#888; font-size:18px; margin-bottom: 1.25rem; }
 
-/* Cabeçalho da tabela */
-.header-cell { font-weight:600; padding-bottom:6px; border-bottom:2px solid #444; }
+/* Separadores e cabeçalhos */
+.header-cell { font-weight:600; padding-bottom:6px; border-bottom:2px solid #444; text-align:center; }
+.row-sep { border-bottom: 1px solid #333; margin: 8px 0 12px 0; }
 
-/* Linha separadora entre bandeiras */
-.row-sep { border-bottom: 1px solid #333; margin: 6px 0 10px 0; }
+/* Célula do logo */
+.flag-cell { display:flex; align-items:center; height: 56px; }
 
-/* Altura consistente das células de logo */
-.flag-cell { display:flex; align-items:center; height: 52px; }
-
-/* Deixa inputs compactos e alinhados visualmente */
-div[data-testid="stNumberInput"] > div { max-width: 170px; }   /* largura máx por campo */
-div[data-testid="stNumberInput"] input { text-align: right; }  /* números alinhados à direita */
-
-/* Botão submit parecido com o mock */
-div.stButton > button:first-child {
-  width: 180px; height: 46px; font-weight: 700;
-  border-radius: 10px; background: #d9d9d9; color: #222;
+/* ====== ESTILO RESTRITO À GRADE DE TAXAS (#rates) ====== */
+#rates [data-testid="stNumberInput"] > div {
+  max-width: 160px;          /* deixa compacto */
+  margin: 0 auto !important; /* centraliza na coluna */
 }
+#rates [data-testid="stNumberInput"] input {
+  text-align: right;          /* números alinhados à direita */
+}
+#rates .col-center { text-align:center; } /* ajuda a centralizar cabeçalho */
 </style>
 """, unsafe_allow_html=True)
 
@@ -107,6 +105,7 @@ with left:
 
 # ----------------------- FORM -----------------------
 with st.form("form_pl"):
+    # Campos superiores (tamanhos originais)
     c1, c2, c3 = st.columns([1.2, 1, 1])
     with c1:
         nome = st.text_input("Nome do estabelecimento", placeholder="Jane Smith")
@@ -130,15 +129,18 @@ with st.form("form_pl"):
     # ----------------------- TABELA DE BANDEIRAS -----------------------
     st.markdown("### Tabelas de Taxas por Bandeira")
 
-    # Cabeçalho (com coluna espaçadora no fim para "encolher" os inputs)
-    h1, h2, h3, h4, h5, _sp = st.columns([0.7, 0.9, 0.9, 0.9, 0.9, 3])
-    with h1: st.markdown('<div class="header-cell"> </div>', unsafe_allow_html=True)
-    with h2: st.markdown('<div class="header-cell">Débito</div>', unsafe_allow_html=True)
-    with h3: st.markdown('<div class="header-cell">Crédito</div>', unsafe_allow_html=True)
-    with h4: st.markdown('<div class="header-cell">Parcelado 2 a 6</div>', unsafe_allow_html=True)
-    with h5: st.markdown('<div class="header-cell">Parcelado 7 a 12</div>', unsafe_allow_html=True)
+    # wrapper para aplicar CSS apenas aqui
+    st.markdown('<div id="rates">', unsafe_allow_html=True)
 
-    # Logos por URL (Elo corrigido)
+    # Cabeçalho (coluna espaçadora para “puxar” inputs ao centro visual)
+    h1, h2, h3, h4, h5, _sp = st.columns([0.8, 1, 1, 1, 1, 2.5])
+    with h1: st.markdown('<div class="header-cell"> </div>', unsafe_allow_html=True)
+    with h2: st.markdown('<div class="header-cell col-center">Débito</div>', unsafe_allow_html=True)
+    with h3: st.markdown('<div class="header-cell col-center">Crédito</div>', unsafe_allow_html=True)
+    with h4: st.markdown('<div class="header-cell col-center">Parcelado 2 a 6</div>', unsafe_allow_html=True)
+    with h5: st.markdown('<div class="header-cell col-center">Parcelado 7 a 12</div>', unsafe_allow_html=True)
+
+    # Logos
     bandeiras = [
         ("Mastercard", "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg", "mc"),
         ("Visa", "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png", "visa"),
@@ -148,8 +150,7 @@ with st.form("form_pl"):
 
     taxas = {}
     for nome_bandeira, logo_src, key_base in bandeiras:
-        # Colunas com spacer no fim -> inputs ficam mais estreitos e alinhados
-        cA, cB, cC, cD, cE, spacer = st.columns([0.7, 0.9, 0.9, 0.9, 0.9, 3])
+        cA, cB, cC, cD, cE, spacer = st.columns([0.8, 1, 1, 1, 1, 2.5])
 
         with cA:
             st.markdown('<div class="flag-cell">', unsafe_allow_html=True)
@@ -179,6 +180,9 @@ with st.form("form_pl"):
 
         st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
 
+    # fecha wrapper
+    st.markdown('</div>', unsafe_allow_html=True)
+
     submitted = st.form_submit_button("Submit")
 
 # ----------------------- RESULTADO -----------------------
@@ -190,8 +194,8 @@ if submitted:
         "cnae": cnae,
         "faturamento_anual": faturamento_anual,
         "faturamento_mensal": faturamento_mensal,
-        "antecipacao": antecipacao_sel,   # "SIM" / "NÃO"
-        "captura": captura_sel,           # "FISICO" / "ECOMMERCE"
+        "antecipacao": antecipacao_sel,
+        "captura": captura_sel,
         "taxa_antecipacao_percent": taxa_antecipacao,
         "taxas_por_bandeira_percent": taxas,
     }
