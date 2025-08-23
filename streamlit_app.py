@@ -95,6 +95,7 @@ left, _ = st.columns([1,3])
 with left:
     st.image("images/logo2.png", width=140)  # ajuste o width se precisar
     st.markdown('<div class="app-subtitle">Simulador de P&L</div>', unsafe_allow_html=True)
+    st.markdown('<div class="app-subtitle">Developed by Pricing (Author: Guilherme Aquino)</div>', unsafe_allow_html=True)
 
 # ============================================================
 #  CAMPOS SUPERIORES (FORA DO FORM) -> atualizam em tempo real
