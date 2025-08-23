@@ -77,14 +77,25 @@ st.markdown("""
 <style>
 .app-title { font-size: 28px; font-weight: 700; letter-spacing: .2px; }
 .app-subtitle { color:#888; font-size:18px; margin-bottom: 1.25rem; }
-hr.thin { border: none; border-top: 1px solid #eaeaea; margin: 6px 0 18px 0; }
+
+/* Cabeçalho da tabela */
+.header-cell { font-weight:600; padding-bottom:6px; border-bottom:2px solid #444; }
+
+/* Linha separadora entre bandeiras */
+.row-sep { border-bottom: 1px solid #333; margin: 6px 0 10px 0; }
+
+/* Altura consistente das células de logo */
+.flag-cell { display:flex; align-items:center; height: 52px; }
+
+/* Deixa inputs compactos e alinhados visualmente */
+div[data-testid="stNumberInput"] > div { max-width: 170px; }   /* largura máx por campo */
+div[data-testid="stNumberInput"] input { text-align: right; }  /* números alinhados à direita */
+
+/* Botão submit parecido com o mock */
 div.stButton > button:first-child {
-  width: 180px; height: 48px; font-weight: 700;
-  border-radius: 10px; background: #d9d9d9; color: #333;
+  width: 180px; height: 46px; font-weight: 700;
+  border-radius: 10px; background: #d9d9d9; color: #222;
 }
-.flag-cell { display:flex; align-items:center; height: 48px; }
-.header-cell { font-weight:600; padding-bottom:6px; border-bottom:2px solid #222; }
-.row-sep { border-bottom: 1px solid #e5e5e5; margin: 2px 0 10px 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -114,34 +125,35 @@ with st.form("form_pl"):
     with c5:
         taxa_antecipacao = st.number_input("Taxa de antecipação (%)", min_value=0.0, max_value=100.0, step=0.01, format="%.2f")
 
-    st.markdown("<hr class='thin'/>", unsafe_allow_html=True)
+    st.markdown("---")
 
     # ----------------------- TABELA DE BANDEIRAS -----------------------
-    st.markdown("#### Tabelas de Taxas por Bandeira")
+    st.markdown("### Tabelas de Taxas por Bandeira")
 
-    # Cabeçalho
-    h1, h2, h3, h4, h5 = st.columns([1.1, 1, 1, 1, 1])
+    # Cabeçalho (com coluna espaçadora no fim para "encolher" os inputs)
+    h1, h2, h3, h4, h5, _sp = st.columns([0.7, 0.9, 0.9, 0.9, 0.9, 3])
     with h1: st.markdown('<div class="header-cell"> </div>', unsafe_allow_html=True)
     with h2: st.markdown('<div class="header-cell">Débito</div>', unsafe_allow_html=True)
     with h3: st.markdown('<div class="header-cell">Crédito</div>', unsafe_allow_html=True)
     with h4: st.markdown('<div class="header-cell">Parcelado 2 a 6</div>', unsafe_allow_html=True)
     with h5: st.markdown('<div class="header-cell">Parcelado 7 a 12</div>', unsafe_allow_html=True)
 
-    # Logos por URL (troque por caminhos locais se preferir)
+    # Logos por URL (Elo corrigido)
     bandeiras = [
         ("Mastercard", "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg", "mc"),
         ("Visa", "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png", "visa"),
-        ("Elo", "https://upload.wikimedia.org/wikipedia/commons/5/5a/Bandeira_Elo.png", "elo"),
+        ("Elo", "https://upload.wikimedia.org/wikipedia/commons/4/4f/Elo_card_logo.svg", "elo"),
         ("American Express", "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg", "amex"),
     ]
 
     taxas = {}
     for nome_bandeira, logo_src, key_base in bandeiras:
-        cA, cB, cC, cD, cE = st.columns([1.1, 1, 1, 1, 1])
+        # Colunas com spacer no fim -> inputs ficam mais estreitos e alinhados
+        cA, cB, cC, cD, cE, spacer = st.columns([0.7, 0.9, 0.9, 0.9, 0.9, 3])
 
         with cA:
             st.markdown('<div class="flag-cell">', unsafe_allow_html=True)
-            st.image(logo_src, width=68)
+            st.image(logo_src, width=64)
             st.markdown('</div>', unsafe_allow_html=True)
 
         with cB:
