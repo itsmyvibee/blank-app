@@ -137,6 +137,7 @@ with st.form("form_pl"):
         ("Visa", "visa"),
         ("Elo", "elo"),
         ("American Express", "amex"),
+        ("Cabal", "cabal")
     ]
 
     taxas = {}
