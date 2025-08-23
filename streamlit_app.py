@@ -93,7 +93,7 @@ def brl(v: float) -> str:
 # ----------------------- CABEÇALHO -----------------------
 left, _ = st.columns([1,3])
 with left:
-    st.markdown('<div class="app-title">fiserv.</div>', unsafe_allow_html=True)
+    st.image("images/logo.png", width=140)  # ajuste o width se precisar
     st.markdown('<div class="app-subtitle">Simulador de P&L</div>', unsafe_allow_html=True)
 
 # ============================================================
