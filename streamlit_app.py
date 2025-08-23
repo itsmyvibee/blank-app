@@ -83,6 +83,16 @@ hr.thin { border: none; border-top: 1px solid #eaeaea; margin: 6px 0 18px 0; }
 .flag-col { display:flex; align-items:center; height: 42px; font-weight: 600; }
 .header-cell { font-weight:600; padding-bottom:6px; border-bottom:2px solid #222; }
 .row-sep { border-bottom: 1px solid #e5e5e5; margin: 0 0 8px 0; }
+
+/* Só para a seção de Antecipação */
+#antec [data-testid="stNumberInput"] > div {
+  max-width: 140px;           /* deixe 120~160 conforme gostar */
+  margin: 0 auto !important;  /* centraliza o bloco do input */
+}
+#antec [data-testid="stNumberInput"] input {
+  text-align: right;          /* números à direita, igual aos outros */
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -201,10 +211,23 @@ with st.form("form_pl"):
 
     # ----------------------- Campo de antecipação (CONDICIONAL) -----------------------
     if st.session_state.get("antecipacao_sel") == "SIM":   # aparece/desaparece na hora
-        st.markdown("#### ")
-        st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
-        st.markdown("#### Antecipação")
-        taxa_antecipacao = st.number_input("Taxa de antecipação (%)", min_value=0.0, step=0.10, format="%.2f", key="taxa_antecipacao", label_visibility="collapsed")
+    st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
+    st.markdown("#### Antecipação")
+
+    # Wrapper para aplicar o CSS acima somente aqui
+    st.markdown('<div id="antec">', unsafe_allow_html=True)
+
+    # Colunas para deixar o input estreito e centralizado
+    left, center, right = st.columns([3, 1, 3])
+    with center:
+        taxa_antecipacao = st.number_input(
+            "Taxa de antecipação (%)",
+            min_value=0.0, value=0.0, step=0.01, format="%.2f",
+            key="taxa_antecipacao", label_visibility="collapsed"
+        )
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
 
     
     # ----------------------- SUBMIT -----------------------
