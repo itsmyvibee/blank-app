@@ -84,15 +84,6 @@ hr.thin { border: none; border-top: 1px solid #eaeaea; margin: 6px 0 18px 0; }
 .header-cell { font-weight:600; padding-bottom:6px; border-bottom:2px solid #222; }
 .row-sep { border-bottom: 1px solid #e5e5e5; margin: 0 0 8px 0; }
 
-/* Só para a seção de Antecipação */
-#antec [data-testid="stNumberInput"] > div {
-  max-width: 140px;           /* deixe 120~160 conforme gostar */
-  margin: 0 auto !important;  /* centraliza o bloco do input */
-}
-#antec [data-testid="stNumberInput"] input {
-  text-align: right;          /* números à direita, igual aos outros */
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -213,9 +204,6 @@ with st.form("form_pl"):
     if st.session_state.get("antecipacao_sel") == "SIM":   # aparece/desaparece na hora
     st.markdown("<div class='row-sep'></div>", unsafe_allow_html=True)
     st.markdown("#### Antecipação")
-
-    # Wrapper para aplicar o CSS acima somente aqui
-    st.markdown('<div id="antec">', unsafe_allow_html=True)
 
     # Colunas para deixar o input estreito e centralizado
     left, center, right = st.columns([3, 1, 3])
